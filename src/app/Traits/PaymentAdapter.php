@@ -20,6 +20,16 @@ trait PaymentAdapter
     }
 
     /**
+     * Get the customers for the user
+     *
+     * @return mixed
+     */
+    public function payments()
+    {
+        return $this->hasMany(config('payment.models.payment'));
+    }
+
+    /**
      * Make new Gateway
      *
      * @return mixed
@@ -213,8 +223,10 @@ trait PaymentAdapter
         if ($charge_customer !== null) {
             $customer = $this->customers->first();
             $payment  = $customer->payments()->create($data);
+            $payment->user()->associate($this);
+            $payment->save();
         } else {
-            $payment = config('payment.models.payment')::create($data);
+            $payment = $this->payments()->create($data);
         }
 
         return $payment;
@@ -313,9 +325,12 @@ trait PaymentAdapter
      */
     public function createSubscription($plan_id)
     {
-        $gateway      = $this->makeGateway();
-        $customer_id  = $this->customers->first()->customer_id;
-        $subscription = $gateway->createSubscription($customer_id, $plan_id);
+        $gateway  = $this->makeGateway();
+        $customer = $this->customers->first();
+        if (!$customer) {
+            throw new BadRequestHttpException();
+        }
+        $subscription = $gateway->createSubscription($customer->customer_id, $plan_id);
 
         return $subscription;
     }
@@ -349,7 +364,10 @@ trait PaymentAdapter
         $customer_id = $data->pull('customer_id');
         $data        = $data->toArray();
 
-        $customer     = $this->customers->where('customer_id', $customer_id)->first();
+        $customer = $this->customers->where('customer_id', $customer_id)->first();
+        if (!$customer) {
+            throw new BadRequestHttpException();
+        }
         $subscription = $customer->subscriptions()->create($data);
 
         return $subscription;
@@ -371,7 +389,7 @@ trait PaymentAdapter
 
     /**
      * Update Subscription
-     * 
+     *
      * @param $data
      * @param $subscription_id
      * @return mixed

@@ -18,6 +18,8 @@ class CreatePaymentsTable extends Migration
             $table->string('charge_id')->nullable();
             $table->unsignedInteger('customer_id')->nullable();
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('card_id')->nullable();
             $table->integer('amount')->nullable();
             $table->string('currency')->nullable();

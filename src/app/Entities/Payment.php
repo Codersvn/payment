@@ -30,4 +30,14 @@ class Payment extends Model
         return $this->belongsTo(config('payment.models.customer'));
     }
 
+    /**
+     * Get the user for the payment
+     * 
+     * @return mixed
+     */
+    public function user()
+    {
+        return $this->belongsTo(config('auth.providers.users.model'));
+    }
+
 }

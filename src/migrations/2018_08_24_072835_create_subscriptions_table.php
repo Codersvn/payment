@@ -17,6 +17,7 @@ class CreateSubscriptionsTable extends Migration
             $table->increments('id');
             $table->string('subscription_id');
             $table->unsignedInteger('customer_id');
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->string('plan_id');
             $table->integer('quantity');
             $table->string('status');
