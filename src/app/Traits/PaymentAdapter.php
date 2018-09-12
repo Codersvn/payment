@@ -5,6 +5,7 @@ namespace VCComponent\Laravel\Payment\Traits;
 use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use VCComponent\Laravel\Payment\Entities\Payment;
+use VCComponent\Laravel\Payment\Exceptions\NotFoundException;
 use VCComponent\Laravel\Payment\Gateways\GatewayInterface;
 
 trait PaymentAdapter
@@ -328,7 +329,7 @@ trait PaymentAdapter
         $gateway  = $this->makeGateway();
         $customer = $this->customers->first();
         if (!$customer) {
-            throw new BadRequestHttpException();
+            throw new NotFoundException('Customer');
         }
         $subscription = $gateway->createSubscription($customer->customer_id, $plan_id);
 
@@ -366,7 +367,7 @@ trait PaymentAdapter
 
         $customer = $this->customers->where('customer_id', $customer_id)->first();
         if (!$customer) {
-            throw new BadRequestHttpException();
+            throw new NotFoundException('Customer');
         }
         $subscription = $customer->subscriptions()->create($data);
 
